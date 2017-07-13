@@ -55,9 +55,9 @@ function save(new_itemlist) {
 }
 //==================计算总共花费的钱  3min======================
 function sum_total(new_itemlist) {
-    let sum_money;
+    let sum_money=0;
     for(let i=0;i<new_itemlist.length;i++)
-        sum_money+=new_itemlist[i].actultotal;
+        sum_money+=parseFloat(new_itemlist[i].actultotal);
     return sum_money.toFixed(2);
 }
 //==================打印输出   8min=========================
