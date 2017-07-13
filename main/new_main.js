@@ -6,6 +6,7 @@ function replace(inputs) {
     let new_inputs=[];
     let item_list=[];
     let count;
+    inputs=inputs.sort();
     for(let i=0;i<inputs.length;i++)
     {
        if(inputs[i].length==10)
@@ -13,7 +14,6 @@ function replace(inputs) {
        else
            new_inputs.push({barcode:inputs[i].split("-")[0],count:inputs[i].split("-")[1]});
     }
-    new_inputs=new_inputs.sort();
     for(let i=0;i<new_inputs.length;i++){
         count=0;
         for(var j=i;j<new_inputs.length;j++){
