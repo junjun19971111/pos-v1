@@ -1,0 +1,56 @@
+#1 统计每一种商品的数量count，匹配后转化为商品信息对象    10min
+	input:  item_arr[string,string,string,...]，loadAllItems()
+	output: list_info[{  barcode:string
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+				},{...},{...}]
+
+#2 结合促销信息，算出每种商品实际花费的金额    10min
+	input:  list_info[{  barcode:string       ,loadPromotions()  
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+				},{...},{...}]
+	output: list_info[{  barcode:string
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+			     actul_money:unmber
+				},{...},{...}]
+
+
+#3 求所有商品的总价（总计）    2min
+	input:	list_info[{  barcode:string
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+			     actul_money:number
+				},{...},{...}]
+	output: sum:number
+	
+#4 求节省的金额    2min
+	input:  list_info[{  barcode:string
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+			     actul_money:number
+				},{...},{...}]
+		sum:number
+	output: save:number
+#5 打印输出                   8min
+	input:  list_info[{  barcode:string
+			     name:string 
+			     unit:string
+			     price:number 	
+			     count:number
+			     actul_money:number
+				},{...},{...}]
+		sum:number
+		save:number
+	output: list_card:   string
