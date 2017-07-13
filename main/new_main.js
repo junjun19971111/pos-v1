@@ -1,3 +1,5 @@
+ 'use strict';
+
 //=============将字符串转换为商品对象     15min=====================
 function replace(inputs) {
     let all_item = loadAllItems();
