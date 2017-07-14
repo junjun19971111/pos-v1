@@ -1,114 +1,139 @@
-'use strict';
+ 'use strict';
 
-//=================2min===============
-function printReceipt(inputs) {
-    var list;
-    list = makeList(inputs);
-    list = addSubTotal(list);
-    var receipt = makeReceipt(list);
-    printRec(receipt);
+function loadAllItems() {
+    return [
+        {
+            barcode: 'ITEM000000',
+            name: '可口可乐',
+            unit: '瓶',
+            price: 3.00
+        },
+        {
+            barcode: 'ITEM000001',
+            name: '雪碧',
+            unit: '瓶',
+            price: 3.00
+        },
+        {
+            barcode: 'ITEM000002',
+            name: '苹果',
+            unit: '斤',
+            price: 5.50
+        },
+        {
+            barcode: 'ITEM000003',
+            name: '荔枝',
+            unit: '斤',
+            price: 15.00
+        },
+        {
+            barcode: 'ITEM000004',
+            name: '电池',
+            unit: '个',
+            price: 2.00
+        },
+        {
+            barcode: 'ITEM000005',
+            name: '方便面',
+            unit: '袋',
+            price: 4.50
+        }
+    ];
 }
-
-//=====================6min===============
-function getBarcodeInfo(barcode) {
-    var info = {};
-    var pos = barcode.indexOf('-');
-    if (pos > -1)
-    {
-        info.barcode = barcode.substring(0, pos);
-        info.count = parseFloat(barcode.substring(pos + 1));
-    }
-    else
-    {
-        info.barcode = barcode;
-        info.count = 1;
-    }
-    return info;
+function loadPromotions() {
+    return [
+        {
+            type: 'BUY_TWO_GET_ONE_FREE',
+            barcodes: [
+                'ITEM000000',
+                'ITEM000001',
+                'ITEM000005'
+            ]
+        }
+    ];
 }
+const inputs = [
+    'ITEM000001',
+    'ITEM000001',
+    'ITEM000001',
+    'ITEM000001',
+    'ITEM000001',
+    'ITEM000003-2.5',
+    'ITEM000005',
+    'ITEM000005',
+    'ITEM000005',
+];
+ 
+ function replace(inputs) {
+     let all_item = loadAllItems();
+     let new_inputs=[];
+     let item_list=[];
+     let count;
+     inputs=inputs.sort();
+     for(let i=0;i<inputs.length;i++)
+     {
+         if(inputs[i].length==10)
+             new_inputs.push({barcode:inputs[i],count:1});
+         else
+             new_inputs.push({barcode:inputs[i].split("-")[0],count:inputs[i].split("-")[1]});
+     }
+     for(let i=0;i<new_inputs.length;i++){
+         count=0;
+         for(var j=i;j<new_inputs.length;j++){
+             if(new_inputs[i].barcode == new_inputs[j].barcode)
+                 count+=parseFloat(new_inputs[i].count);
+             else
+                 break;
+         }
+         item_list.push({barcode:new_inputs[i].barcode,count:count});
+         i=j-1;
+     }
+     let new_itemlist=[];  //存放新的商品清单（加了count属性）
+     for(let i=0;i<item_list.length;i++)
+         for(let j=0;j<all_item.length;j++)
+             if(item_list[i].barcode==all_item[j].barcode)
+             {
+                 new_itemlist.push(all_item[j]);
+                 new_itemlist[i].count = item_list[i].count;
+             }
+     return new_itemlist;
+ }
+ //==================计算每种商品实际花费的钱    8min=======================
+ function actul_total(new_itemlist) {
+     let list_promotion=loadPromotions()[0].barcodes;
+     for(let i=0;i<new_itemlist.length;i++){
+         if(list_promotion.indexOf(new_itemlist[i].barcode)<0 || new_itemlist[i].count<2)
+             new_itemlist[i].actultotal=(new_itemlist[i].count*new_itemlist[i].price).toFixed(2);
+         else
+             new_itemlist[i].actultotal=((new_itemlist[i].count-1)*new_itemlist[i].price).toFixed(2);
+     }
+     return new_itemlist;
+ }
+ //==================计算节省的钱    3min=======================
+ function save(new_itemlist) {
+     let save_money=0;
+     for(let i=0;i<new_itemlist.length;i++)
+         save_money+=(new_itemlist[i].count*new_itemlist[i].price-new_itemlist[i].actultotal);
+     return save_money.toFixed(2);
+ }
+ //==================计算总共花费的钱  3min======================
+ function sum_total(new_itemlist) {
+     let sum_money=0;
+     for(let i=0;i<new_itemlist.length;i++)
+         sum_money+=parseFloat(new_itemlist[i].actultotal);
+     return sum_money.toFixed(2);
+ }
+ //==================打印输出   8min=========================
+ function  print(new_itemlist) {
+     let str="***<没钱赚商店>收据***\n";
+     for(let i=0;i<new_itemlist.length;i++)
+         str+="名称：" + new_itemlist[i].name + "，数量：" + new_itemlist[i].count + new_itemlist[i].unit + "，单价：" + new_itemlist[i].price.toFixed(2) + "(元)，小计：" + new_itemlist[i].actultotal + "(元)\n";
+     str += "----------------------\n总计：" + sum_total(actul_total(replace(inputs)))+ "(元)\n节省：" +save(actul_total(replace(inputs)))+ "(元)\n**********************";
+     return str;
+ }
+ //============================================
+ function printReceipt(inputs) {
+     let all_str=print(actul_total(replace(inputs)));
+     console.log(all_str);
+ }
 
-//==========================15min=============
-function makeList(barcodeList) {
-    var list = [];
-    var itemInfoList = loadAllItems();
-    for (var barcode of barcodeList)
-    {
-        var flag = true;
-        var barcodeInfo = getBarcodeInfo(barcode);
-        for (var item of list)
-            if (barcodeInfo.barcode == item.barcode)
-            {
-                item.count += barcodeInfo.count;
-                flag = false;
-                break;
-            }
-        if (flag)
-            for (var itemInfo of itemInfoList)
-                if (barcodeInfo.barcode == itemInfo.barcode)
-                {
-                    var item = {};
-                    item.name = itemInfo.name;
-                    item.barcode = itemInfo.barcode;
-                    item.price = itemInfo.price;
-                    item.unit = itemInfo.unit;
-                    item.count = barcodeInfo.count;
-                    list.push(item);
-                    break;
-                }
-    }
-    return list;
-}
-
-//=====================12min==================
-function getPromotion(item) {
-    var promotionList = loadPromotions();
-    var promo_itemInfo = {}
-    promo_itemInfo.price = item.price;
-    promo_itemInfo.count = item.count;
-
-    for (var promoInfo of promotionList)
-        if (promoInfo.type == 'BUY_TWO_GET_ONE_FREE')
-            for (var promoBarcode of promoInfo.barcodes)
-                if (promoBarcode == item.barcode)
-                {
-                    promo_itemInfo.count -= Math.floor(promo_itemInfo.count / 3);
-                    break;
-                }
-    return promo_itemInfo;
-}
-
-//=============5min===============
-function addSubTotal(list) {
-    var promoted_itemInfo;
-    for (var item of list)
-    {
-        promoted_itemInfo = getPromotion(item);
-        item.subTotal = (promoted_itemInfo.price * promoted_itemInfo.count);
-        item.promo = (item.price * item.count) - (promoted_itemInfo.price * promoted_itemInfo.count);
-    }
-    return list;
-}
-
-//==================10min=============
-function makeReceipt(list) {
-    var sum = 0, promosum = 0;
-    for (var item of list)
-    {
-        sum = sum + item.subTotal;
-        promosum = promosum + item.promo;
-    }
-    var receipt = {};
-    receipt.list = list;
-    receipt.total = sum;
-    receipt.promoTotal = promosum;
-    return receipt;
-}
-
-//=======================8min==============
-function printRec(receipt) {
-    var s = "";
-    s = s + "***<没钱赚商店>收据***\n";
-    for (var item of receipt.list)
-        s = s + "名称：" + item.name + "，数量：" + item.count + item.unit + "，单价：" + item.price.toFixed(2) + "(元)，小计：" + item.subTotal.toFixed(2) + "(元)\n";
-    s = s + "----------------------\n总计：" + receipt.total.toFixed(2) + "(元)\n节省：" + receipt.promoTotal.toFixed(2) + "(元)\n**********************";
-    console.log(s);
-}
